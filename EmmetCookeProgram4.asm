@@ -6,7 +6,7 @@ TITLE Program Template     (EmmetCookeProgram4.asm)
 
 INCLUDE Irvine32.inc
 
-UPPER_LIMIT	= 400
+UPPER_LIMIT = 400
 
 .data
 
@@ -18,6 +18,9 @@ UPPER_LIMIT	= 400
 	prompt1			BYTE	"Please enter the number of composite numbers you "
 					BYTE	"would like to see.",0
 	prompt2			BYTE	"Please enter an integer in the range [1 - 400]: ",0
+
+	; Error String
+	error			BYTE	"That is outside of the designated range. ",0
 
 	; Variables to hold data
 	userInput		DWORD	?
@@ -65,18 +68,55 @@ introduceProgrammer ENDP
 ; preconditions: none
 ; registers changed: edx
 ;-------------------------------------
-getUserData PROC
+getUserData PROC USES edx
 	mov		edx, OFFSET prompt1
 	call	WriteString
 	call	Crlf
-invalidInput:
+loopStart:
 	mov		edx, OFFSET prompt2
 	call	WriteString
-	;call	ReadInt
+	call	ReadInt
+	push	eax
 	call	Crlf
-	;call	validateInput
+	call	validateInput
+	pop		eax
+	cmp		bx, 1
+	je		invalidInput
+	jmp		endGetUserData
+
+invalidInput:
+	mov		edx, OFFSET error
+	call	WriteString
+	call	Crlf
+	jmp		loopStart
+
+endGetUserData:	
 	ret
 getUserData ENDP
 
+;-------------------------------------
+; Procedure to validate the user input
+; recieves: user input value
+; returns: none
+; preconditions: none
+; registers changed: 
+;-------------------------------------
+validateInput PROC
+	push	ebp
+	mov		ebp, esp
+	mov		eax, [ebp + 8]
+	cmp		eax, 1
+	jb		badInput
+	cmp		eax, UPPER_LIMIT
+	ja		badInput
+	pop		ebp
+	mov		bx, 0
+	ret		
+
+badInput:
+	pop		ebp
+	mov		bx, 1
+	ret		
+validateInput ENDP
 
 END main

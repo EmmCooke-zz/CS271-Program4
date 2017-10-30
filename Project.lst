@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
+Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 12:20:29
 -Program Template     (EmmetCookeProgram4.asm		     Page 1 - 1
 
 
@@ -27,7 +27,7 @@ Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
 			      C .LIST
 			      C 
 
-				; (insert constant definitions here)
+ = 00000190			UPPER_LIMIT = 400
 
  00000000			.data
 
@@ -70,14 +70,29 @@ Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
 	   2D 20 34 30 30
 	   5D 3A 20 00
 
+					; Error String
+ 000000AB 54 68 61 74 20		error			BYTE	"That is outside of the designated range. ",0
+	   69 73 20 6F 75
+	   74 73 69 64 65
+	   20 6F 66 20 74
+	   68 65 20 64 65
+	   73 69 67 6E 61
+	   74 65 64 20 72
+	   61 6E 67 65 2E
+	   20 00
+
+					; Variables to hold data
+ 000000D5 00000000			userInput		DWORD	?
+
  00000000			.code
  00000000			main PROC
 
 				; Introduction
- 00000000  E8 0000000C			call	introduceProgrammer
+ 00000000  E8 00000011			call	introduceProgrammer
+ 00000005  E8 00000000 E		call	Crlf
 
 				; Get User Data
- 00000005  E8 00000028			call	getUserData
+ 0000000A  E8 00000028			call	getUserData
 					; Validate User Data
 
 				; Show Composites
@@ -86,9 +101,9 @@ Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
 				; Farewell
 
 					exit	; exit to operating system
- 0000000A  6A 00	   *	    push   +000000000h
- 0000000C  E8 00000000 E   *	    call   ExitProcess
- 00000011			main ENDP
+ 0000000F  6A 00	   *	    push   +000000000h
+ 00000011  E8 00000000 E   *	    call   ExitProcess
+ 00000016			main ENDP
 
 				;-------------------------------------
 				; Procedure to introduce the programmer
@@ -97,18 +112,18 @@ Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
 				; preconditions: none
 				; registers changed: edx
 				;-------------------------------------
- 00000011			introduceProgrammer PROC USES edx
- 00000011  52		   *	    push   edx
- 00000012  BA 00000000 R		mov		edx, OFFSET programTitle
- 00000017  E8 00000000 E		call	WriteString
- 0000001C  E8 00000000 E		call	Crlf
- 00000021  BA 0000001E R		mov		edx, OFFSET programmerName
- 00000026  E8 00000000 E		call	WriteString
- 0000002B  E8 00000000 E		call	Crlf
+ 00000016			introduceProgrammer PROC USES edx
+ 00000016  52		   *	    push   edx
+ 00000017  BA 00000000 R		mov		edx, OFFSET programTitle
+ 0000001C  E8 00000000 E		call	WriteString
+ 00000021  E8 00000000 E		call	Crlf
+ 00000026  BA 0000001E R		mov		edx, OFFSET programmerName
+ 0000002B  E8 00000000 E		call	WriteString
+ 00000030  E8 00000000 E		call	Crlf
 					ret
- 00000030  5A		   *	    pop    edx
- 00000031  C3		   *	    ret    00000h
- 00000032			introduceProgrammer ENDP
+ 00000035  5A		   *	    pop    edx
+ 00000036  C3		   *	    ret    00000h
+ 00000037			introduceProgrammer ENDP
 
 				;-------------------------------------
 				; Procedure to get an integer from the user
@@ -117,19 +132,62 @@ Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
 				; preconditions: none
 				; registers changed: edx
 				;-------------------------------------
- 00000032			getUserData PROC
- 00000032  BA 00000036 R		mov		edx, OFFSET prompt1
- 00000037  E8 00000000 E		call	WriteString
- 0000003C  E8 00000000 E		call	Crlf
- 00000041			invalidInput:
- 00000041  BA 0000007A R		mov		edx, OFFSET prompt2
- 00000046  E8 00000000 E		call	WriteString
- 0000004B  E8 00000000 E		call	Crlf
- 00000050  C3				ret
- 00000051			getUserData ENDP
+ 00000037			getUserData PROC USES edx
+ 00000037  52		   *	    push   edx
+ 00000038  BA 00000036 R		mov		edx, OFFSET prompt1
+ 0000003D  E8 00000000 E		call	WriteString
+ 00000042  E8 00000000 E		call	Crlf
+ 00000047			loopStart:
+ 00000047  BA 0000007A R		mov		edx, OFFSET prompt2
+ 0000004C  E8 00000000 E		call	WriteString
+ 00000051  E8 00000000 E		call	ReadInt
+ 00000056  50				push	eax
+ 00000057  E8 00000000 E		call	Crlf
+ 0000005C  E8 0000001C			call	validateInput
+ 00000061  58				pop		eax
+ 00000062  66| 83 FB 01			cmp		bx, 1
+ 00000066  74 02			je		invalidInput
+ 00000068  EB 11			jmp		endGetUserData
+
+ 0000006A			invalidInput:
+ 0000006A  BA 000000AB R		mov		edx, OFFSET error
+ 0000006F  E8 00000000 E		call	WriteString
+ 00000074  E8 00000000 E		call	Crlf
+ 00000079  EB CC			jmp		loopStart
+
+ 0000007B			endGetUserData:	
+					ret
+ 0000007B  5A		   *	    pop    edx
+ 0000007C  C3		   *	    ret    00000h
+ 0000007D			getUserData ENDP
+
+				;-------------------------------------
+				; Procedure to validate the user input
+				; recieves: user input value
+				; returns: none
+				; preconditions: none
+				; registers changed: 
+				;-------------------------------------
+ 0000007D			validateInput PROC
+ 0000007D  55				push	ebp
+ 0000007E  8B EC			mov		ebp, esp
+ 00000080  8B 45 08			mov		eax, [ebp + 8]
+ 00000083  83 F8 01			cmp		eax, 1
+ 00000086  72 0D			jb		badInput
+ 00000088  3D 00000190			cmp		eax, UPPER_LIMIT
+ 0000008D  77 06			ja		badInput
+ 0000008F  5D				pop		ebp
+ 00000090  66| BB 0000			mov		bx, 0
+ 00000094  C3				ret		
+
+ 00000095			badInput:
+ 00000095  5D				pop		ebp
+ 00000096  66| BB 0001			mov		bx, 1
+ 0000009A  C3				ret		
+ 0000009B			validateInput ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
+Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 12:20:29
 -Program Template     (EmmetCookeProgram4.asm		     Symbols 2 - 1
 
 
@@ -223,8 +281,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000000AB Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000051 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000000D9 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000009B Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -331,12 +389,16 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-getUserData  . . . . . . . . . .	P Near	 00000032 _TEXT	Length= 0000001F Public STDCALL
-  invalidInput . . . . . . . . .	L Near	 00000041 _TEXT	
-introduceProgrammer  . . . . . .	P Near	 00000011 _TEXT	Length= 00000021 Public STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000011 Public STDCALL
+getUserData  . . . . . . . . . .	P Near	 00000037 _TEXT	Length= 00000046 Public STDCALL
+  loopStart  . . . . . . . . . .	L Near	 00000047 _TEXT	
+  invalidInput . . . . . . . . .	L Near	 0000006A _TEXT	
+  endGetUserData . . . . . . . .	L Near	 0000007B _TEXT	
+introduceProgrammer  . . . . . .	P Near	 00000016 _TEXT	Length= 00000021 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000016 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+validateInput  . . . . . . . . .	P Near	 0000007D _TEXT	Length= 0000001E Public STDCALL
+  badInput . . . . . . . . . . .	L Near	 00000095 _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -472,6 +534,7 @@ SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
+UPPER_LIMIT  . . . . . . . . . .	Number	 00000190h   
 VK_11  . . . . . . . . . . . . .	Number	 000000BDh   
 VK_12  . . . . . . . . . . . . .	Number	 000000BBh   
 VK_ADD . . . . . . . . . . . . .	Number	 0000006Bh   
@@ -557,6 +620,7 @@ black  . . . . . . . . . . . . .	Number	 00000000h
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
+error  . . . . . . . . . . . . .	Byte	 000000AB _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
@@ -572,6 +636,7 @@ programmerName . . . . . . . . .	Byte	 0000001E _DATA
 prompt1  . . . . . . . . . . . .	Byte	 00000036 _DATA	
 prompt2  . . . . . . . . . . . .	Byte	 0000007A _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
+userInput  . . . . . . . . . . .	DWord	 000000D5 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
