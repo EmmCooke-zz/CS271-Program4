@@ -7,6 +7,7 @@ TITLE Program Template     (EmmetCookeProgram4.asm)
 INCLUDE Irvine32.inc
 
 UPPER_LIMIT = 400
+TAB = 9
 
 .data
 
@@ -34,10 +35,9 @@ main PROC
 
 ; Get User Data
 	call	getUserData
-	; Validate User Data
 
 ; Show Composites
-	; Is Composite
+	call	writeComposites
 
 ; Farewell
 
@@ -82,6 +82,7 @@ loopStart:
 	pop		eax
 	cmp		bx, 1
 	je		invalidInput
+	mov		ecx, eax
 	jmp		endGetUserData
 
 invalidInput:
@@ -118,5 +119,46 @@ badInput:
 	mov		bx, 1
 	ret		
 validateInput ENDP
+
+;-------------------------------------
+; Procedure to validate the user input
+; recieves: user input value
+; returns: none
+; preconditions: none
+; registers changed: 
+;-------------------------------------
+writeComposites PROC USES eax ebx
+	mov		ebx, 10
+	mov		eax, 1
+printStart:
+	call	WriteDec
+	dec		ebx
+	cmp		ebx, 0
+	je		rowBreak
+	push	eax
+	mov		al, TAB
+	call	WriteChar
+	pop		eax
+writeNumber:
+	inc		eax
+	loop	printStart
+	ret
+
+rowBreak:
+	mov		ebx, 10
+	call	Crlf
+	jmp		WriteNumber
+writeComposites ENDP
+
+;-------------------------------------
+; Procedure to validate the user input
+; recieves: user input value
+; returns: none
+; preconditions: none
+; registers changed: 
+;-------------------------------------
+isPrime PROC
+	ret
+isPrime ENDP
 
 END main
