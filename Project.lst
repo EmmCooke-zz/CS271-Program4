@@ -1,11 +1,11 @@
-Microsoft (R) Macro Assembler Version 14.10.25019.0	    09/16/17 21:48:27
-#Program Template     (template.asm			     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
+-Program Template     (EmmetCookeProgram4.asm		     Page 1 - 1
 
 
-				TITLE Program Template     (template.asm)
+				TITLE Program Template     (EmmetCookeProgram4.asm)
 
-				; Author:
-				; Course / Project ID                 Date:
+				; Author: Emmet Cooke
+				; Course / Project ID: CS271-400 Program 4    Date: 10/30/2017
 				; Description:
 
 				INCLUDE Irvine32.inc
@@ -31,23 +31,106 @@ Microsoft (R) Macro Assembler Version 14.10.25019.0	    09/16/17 21:48:27
 
  00000000			.data
 
-				; (insert variable definitions here)
+					; Strings for the introduction
+ 00000000 50 72 6F 67 72		programTitle	BYTE	"Program   : Composite Numbers",0
+	   61 6D 20 20 20
+	   3A 20 43 6F 6D
+	   70 6F 73 69 74
+	   65 20 4E 75 6D
+	   62 65 72 73 00
+ 0000001E 50 72 6F 67 72		programmerName	BYTE	"Programmer: Emmet Cooke",0
+	   61 6D 6D 65 72
+	   3A 20 45 6D 6D
+	   65 74 20 43 6F
+	   6F 6B 65 00
+
+					; Prompt to get data
+ 00000036 50 6C 65 61 73		prompt1			BYTE	"Please enter the number of composite numbers you "
+	   65 20 65 6E 74
+	   65 72 20 74 68
+	   65 20 6E 75 6D
+	   62 65 72 20 6F
+	   66 20 63 6F 6D
+	   70 6F 73 69 74
+	   65 20 6E 75 6D
+	   62 65 72 73 20
+	   79 6F 75 20
+ 00000067  77 6F 75 6C 64						BYTE	"would like to see.",0
+	   20 6C 69 6B 65
+	   20 74 6F 20 73
+	   65 65 2E 00
+ 0000007A 50 6C 65 61 73		prompt2			BYTE	"Please enter an integer in the range [1 - 400]: ",0
+	   65 20 65 6E 74
+	   65 72 20 61 6E
+	   20 69 6E 74 65
+	   67 65 72 20 69
+	   6E 20 74 68 65
+	   20 72 61 6E 67
+	   65 20 5B 31 20
+	   2D 20 34 30 30
+	   5D 3A 20 00
 
  00000000			.code
  00000000			main PROC
 
-				; (insert executable instructions here)
+				; Introduction
+ 00000000  E8 0000000C			call	introduceProgrammer
+
+				; Get User Data
+ 00000005  E8 00000028			call	getUserData
+					; Validate User Data
+
+				; Show Composites
+					; Is Composite
+
+				; Farewell
 
 					exit	; exit to operating system
- 00000000  6A 00	   *	    push   +000000000h
- 00000002  E8 00000000 E   *	    call   ExitProcess
- 00000007			main ENDP
+ 0000000A  6A 00	   *	    push   +000000000h
+ 0000000C  E8 00000000 E   *	    call   ExitProcess
+ 00000011			main ENDP
 
-				; (insert additional procedures here)
+				;-------------------------------------
+				; Procedure to introduce the programmer
+				; recieves: none
+				; returns: none
+				; preconditions: none
+				; registers changed: edx
+				;-------------------------------------
+ 00000011			introduceProgrammer PROC USES edx
+ 00000011  52		   *	    push   edx
+ 00000012  BA 00000000 R		mov		edx, OFFSET programTitle
+ 00000017  E8 00000000 E		call	WriteString
+ 0000001C  E8 00000000 E		call	Crlf
+ 00000021  BA 0000001E R		mov		edx, OFFSET programmerName
+ 00000026  E8 00000000 E		call	WriteString
+ 0000002B  E8 00000000 E		call	Crlf
+					ret
+ 00000030  5A		   *	    pop    edx
+ 00000031  C3		   *	    ret    00000h
+ 00000032			introduceProgrammer ENDP
+
+				;-------------------------------------
+				; Procedure to get an integer from the user
+				; recieves: none
+				; returns: none
+				; preconditions: none
+				; registers changed: edx
+				;-------------------------------------
+ 00000032			getUserData PROC
+ 00000032  BA 00000036 R		mov		edx, OFFSET prompt1
+ 00000037  E8 00000000 E		call	WriteString
+ 0000003C  E8 00000000 E		call	Crlf
+ 00000041			invalidInput:
+ 00000041  BA 0000007A R		mov		edx, OFFSET prompt2
+ 00000046  E8 00000000 E		call	WriteString
+ 0000004B  E8 00000000 E		call	Crlf
+ 00000050  C3				ret
+ 00000051			getUserData ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.10.25019.0	    09/16/17 21:48:27
-#Program Template     (template.asm			     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 14.10.25019.0	    10/30/17 11:24:15
+-Program Template     (EmmetCookeProgram4.asm		     Symbols 2 - 1
 
 
 
@@ -140,8 +223,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000000 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000007 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000000AB Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000051 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -248,7 +331,10 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000007 Public STDCALL
+getUserData  . . . . . . . . . .	P Near	 00000032 _TEXT	Length= 0000001F Public STDCALL
+  invalidInput . . . . . . . . .	L Near	 00000041 _TEXT	
+introduceProgrammer  . . . . . .	P Near	 00000011 _TEXT	Length= 00000021 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000011 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -481,6 +567,10 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
+programTitle . . . . . . . . . .	Byte	 00000000 _DATA	
+programmerName . . . . . . . . .	Byte	 0000001E _DATA	
+prompt1  . . . . . . . . . . . .	Byte	 00000036 _DATA	
+prompt2  . . . . . . . . . . . .	Byte	 0000007A _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA

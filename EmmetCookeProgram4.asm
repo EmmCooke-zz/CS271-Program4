@@ -6,20 +6,77 @@ TITLE Program Template     (EmmetCookeProgram4.asm)
 
 INCLUDE Irvine32.inc
 
-; (insert constant definitions here)
+UPPER_LIMIT	= 400
 
 .data
 
-; (insert variable definitions here)
+	; Strings for the introduction
+	programTitle	BYTE	"Program   : Composite Numbers",0
+	programmerName	BYTE	"Programmer: Emmet Cooke",0
+
+	; Prompt to get data
+	prompt1			BYTE	"Please enter the number of composite numbers you "
+					BYTE	"would like to see.",0
+	prompt2			BYTE	"Please enter an integer in the range [1 - 400]: ",0
+
+	; Variables to hold data
+	userInput		DWORD	?
 
 .code
 main PROC
 
-; (insert executable instructions here)
+; Introduction
+	call	introduceProgrammer
+	call	Crlf
+
+; Get User Data
+	call	getUserData
+	; Validate User Data
+
+; Show Composites
+	; Is Composite
+
+; Farewell
 
 	exit	; exit to operating system
 main ENDP
 
-; (insert additional procedures here)
+;-------------------------------------
+; Procedure to introduce the programmer
+; recieves: none
+; returns: none
+; preconditions: none
+; registers changed: edx
+;-------------------------------------
+introduceProgrammer PROC USES edx
+	mov		edx, OFFSET programTitle
+	call	WriteString
+	call	Crlf
+	mov		edx, OFFSET programmerName
+	call	WriteString
+	call	Crlf
+	ret
+introduceProgrammer ENDP
+
+;-------------------------------------
+; Procedure to get an integer from the user
+; recieves: none
+; returns: none
+; preconditions: none
+; registers changed: edx
+;-------------------------------------
+getUserData PROC
+	mov		edx, OFFSET prompt1
+	call	WriteString
+	call	Crlf
+invalidInput:
+	mov		edx, OFFSET prompt2
+	call	WriteString
+	;call	ReadInt
+	call	Crlf
+	;call	validateInput
+	ret
+getUserData ENDP
+
 
 END main
